@@ -6,7 +6,9 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.Log
+import android.widget.Button
 import android.widget.TextView
+import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -23,13 +25,20 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        Thread{
-            for(i in 100 downTo 1){
-                Log.d("Countdown", i.toString())
-                Thread.sleep(1000)
+        val button = findViewById<Button>(R.id.button)
 
-                timerHandler.sendEmptyMessage(i)
+        button.setOnClickListener {
+            CoroutineScope(Job() + Dispatchers.Default).launch {
+                repeat(100){
+                    (100 - it).toString().run{
+                        Log.d("Countdown", this)
+                        withContext(Dispatchers.Main){
+                            timerTextView.text = this@run
+                        }
+                    }
+                    delay(1000)
+                }
             }
-        }.start()
+        }
     }
 }
